@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chiefs Snake Game</title>
+  <!-- Bootstrap Flatly -->
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootswatch/4.5.2/flatly/bootstrap.min.css">
   <link rel="stylesheet" href="css/style.css">
 </head>
@@ -17,6 +18,20 @@
 
   <!-- Game Area -->
   <div id="gameArea" style="display: none; padding: 1rem; background-color: #E31837; color: #FFF; border-radius: 8px;">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-3">
+      <a class="navbar-brand" href="index.html">CY</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavGame">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNavGame">
+        <ul class="navbar-nav">
+          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="resume.html">Resume</a></li>
+          <li class="nav-item"><a class="nav-link" href="scratch.html">Mahomes</a></li>
+          <li class="nav-item active"><a class="nav-link" href="app.html">Game</a></li>
+        </ul>
+      </div>
+    </nav>
     <h1>Chiefs Snake Game</h1>
     <p id="scoreDisplay">Length: 1</p>
     <p id="highScoreDisplay">High Score: 1</p>
@@ -31,105 +46,69 @@
     const grid = 20;
     let snake, dx, dy, foods, gameInterval;
 
-    // High score from localStorage
+    // High score
     let highScore = localStorage.getItem('kcSnakeHighScore') ? parseInt(localStorage.getItem('kcSnakeHighScore'), 10) : 1;
-    document.getElementById('highScoreDisplay').textContent = 'High Score: ' + highScore;
 
-    function randomPos() {
-      return Math.floor(Math.random() * (canvas.width / grid));
-    }
-
+    function randomPos() { return Math.floor(Math.random() * (canvas.width / grid)); }
     function init() {
-      snake = [{x: 8, y: 8}];
-      dx = 1; dy = 0;
-      foods = [];
-      for (let i = 0; i < 5; i++) foods.push({x: randomPos(), y: randomPos()});
-      document.getElementById('scoreDisplay').textContent = 'Length: ' + snake.length;
+      snake = [{x: 8, y: 8}]; dx = 1; dy = 0;
+      foods = []; for (let i=0;i<5;i++) foods.push({x:randomPos(),y:randomPos()});
+      document.getElementById('scoreDisplay').textContent = 'Length: 1';
       document.getElementById('highScoreDisplay').textContent = 'High Score: ' + highScore;
       document.getElementById('restartButton').style.display = 'none';
     }
 
     function drawBackground() {
-      for (let row = 0; row < canvas.height / grid; row++) {
-        for (let col = 0; col < canvas.width / grid; col++) {
-          ctx.fillStyle = (row + col) % 2 === 0 ? '#ffeeba' : '#f8d7da';
-          ctx.fillRect(col * grid, row * grid, grid, grid);
+      for (let r=0;r<canvas.height/grid;r++){
+        for (let c=0;c<canvas.width/grid;c++){
+          ctx.fillStyle = (r+c)%2===0?'#ffeeba':'#f8d7da';
+          ctx.fillRect(c*grid,r*grid,grid,grid);
         }
       }
     }
 
-    function drawFood(x, y) {
-      // Simple oval football
-      const cx = x * grid + grid/2, cy = y * grid + grid/2;
-      ctx.save(); ctx.translate(cx, cy); ctx.rotate(Math.PI/4);
-      ctx.beginPath(); ctx.ellipse(0, 0, grid/2 - 2, grid/4 - 2, 0, 0, 2*Math.PI);
-      ctx.fillStyle = '#8B4513'; ctx.fill(); ctx.strokeStyle = '#654321'; ctx.lineWidth = 1; ctx.stroke();
-      ctx.strokeStyle = '#FFF'; ctx.lineWidth = 2; ctx.beginPath();
-      ctx.moveTo(-grid/8, 0); ctx.lineTo(grid/8, 0);
-      ctx.moveTo(0, -grid/8); ctx.lineTo(0, grid/8);
-      ctx.stroke(); ctx.restore();
+    function drawFood(x,y){
+      const cx=x*grid+grid/2,cy=y*grid+grid/2;
+      ctx.save();ctx.translate(cx,cy);ctx.rotate(Math.PI/4);
+      ctx.beginPath();ctx.ellipse(0,0,grid/2-2,grid/4-2,0,0,2*Math.PI);
+      ctx.fillStyle='#8B4513';ctx.fill();ctx.strokeStyle='#654321';ctx.lineWidth=1;ctx.stroke();
+      ctx.strokeStyle='#FFF';ctx.lineWidth=2;ctx.beginPath();
+      ctx.moveTo(-grid/8,0);ctx.lineTo(grid/8,0);
+      ctx.moveTo(0,-grid/8);ctx.lineTo(0,grid/8);
+      ctx.stroke();ctx.restore();
     }
 
-    function drawSnake() {
-      snake.forEach((seg, i) => {
-        const cx = seg.x * grid + grid/2, cy = seg.y * grid + grid/2;
-        ctx.beginPath(); ctx.arc(cx, cy, grid/2 - 2, 0, 2*Math.PI);
-        ctx.fillStyle = i === 0 ? '#FFD700' : '#FFDEAD';
-        ctx.fill(); ctx.strokeStyle = '#DAA520'; ctx.lineWidth = 2; ctx.stroke();
-        if (i === 0) { // eyes
-          ctx.fillStyle = '#000'; ctx.beginPath();
-          ctx.arc(cx - grid/6, cy - grid/6, grid/10, 0, 2*Math.PI);
-          ctx.arc(cx + grid/6, cy - grid/6, grid/10, 0, 2*Math.PI);
-          ctx.fill();
-        }
+    function drawSnake(){
+      snake.forEach((s,i)=>{
+        const cx=s.x*grid+grid/2,cy=s.y*grid+grid/2;
+        ctx.beginPath();ctx.arc(cx,cy,grid/2-2,0,2*Math.PI);
+        ctx.fillStyle=i===0?'#FFD700':'#FFDEAD';ctx.fill();ctx.strokeStyle='#DAA520';ctx.lineWidth=2;ctx.stroke();
+        if(i===0){ctx.fillStyle='#000';ctx.beginPath();ctx.arc(cx-grid/6,cy-grid/6,grid/10,0,2*Math.PI);ctx.arc(cx+grid/6,cy-grid/6,grid/10,0,2*Math.PI);ctx.fill();}
       });
     }
 
-    function draw() {
-      drawBackground();
-      foods.forEach(f => drawFood(f.x, f.y));
-      drawSnake();
-    }
+    function draw(){drawBackground();foods.forEach(f=>drawFood(f.x,f.y));drawSnake();}
 
-    function update() {
-      const head = {x: snake[0].x + dx, y: snake[0].y + dy};
-      if (head.x < 0 || head.x >= canvas.width/grid || head.y < 0 || head.y >= canvas.height/grid ||
-          snake.some((s,i) => i>0 && s.x===head.x && s.y===head.y)) {
+    function update(){
+      const head={x:snake[0].x+dx,y:snake[0].y+dy};
+      if(head.x<0||head.x>=canvas.width/grid||head.y<0||head.y>=canvas.height/grid||snake.some((s,i)=>i>0&&s.x===head.x&&s.y===head.y)){
         clearInterval(gameInterval);
-        const len = snake.length;
-        if (len > highScore) { highScore = len; localStorage.setItem('kcSnakeHighScore', highScore);}        
-        ctx.fillStyle = 'red'; ctx.font='30px Times New Roman';
-        ctx.fillText('Game Over', canvas.width/2-80, canvas.height/2);
-        document.getElementById('scoreDisplay').textContent = 'Final Length: ' + len;
-        document.getElementById('highScoreDisplay').textContent = 'High Score: ' + highScore;
-        document.getElementById('restartButton').style.display = 'inline-block';
-        return;
+        const len=snake.length; if(len>highScore){highScore=len;localStorage.setItem('kcSnakeHighScore',highScore);}        
+        ctx.fillStyle='red';ctx.font='30px Times New Roman';ctx.fillText('Game Over',canvas.width/2-80,canvas.height/2);
+        document.getElementById('scoreDisplay').textContent='Final Length: '+len;
+        document.getElementById('highScoreDisplay').textContent='High Score: '+highScore;
+        document.getElementById('restartButton').style.display='inline-block';return;
       }
       snake.unshift(head);
-      let ate=false;
-      foods.forEach((f,i)=>{ if (head.x===f.x&&head.y===f.y){ foods[i]={x:randomPos(),y:randomPos()}; ate=true; }});
-      if (!ate) snake.pop();
-      document.getElementById('scoreDisplay').textContent = 'Length: ' + snake.length;
+      let ate=false;foods.forEach((f,i)=>{if(head.x===f.x&&head.y===f.y){foods[i]={x:randomPos(),y:randomPos()};ate=true;}});
+      if(!ate)snake.pop();document.getElementById('scoreDisplay').textContent='Length: '+snake.length;
     }
 
-    document.getElementById('startButton').addEventListener('click', ()=>{
-      document.getElementById('startScreen').style.display='none';
-      document.getElementById('gameArea').style.display='block';
-      init(); draw();
-      gameInterval = setInterval(()=>{update();draw();}, 150);
+    document.getElementById('startButton').addEventListener('click',()=>{
+      document.getElementById('startScreen').style.display='none';document.getElementById('gameArea').style.display='block';init();draw();gameInterval=setInterval(()=>{update();draw();},150);
     });
-
-    document.getElementById('restartButton').addEventListener('click', ()=>{
-      init(); draw();
-      gameInterval = setInterval(()=>{update();draw();}, 150);
-    });
-
-    document.addEventListener('keydown', e => {
-      if (e.key==='ArrowUp'&&dy===0){dx=0;dy=-1;} 
-      if (e.key==='ArrowDown'&&dy===0){dx=0;dy=1;} 
-      if (e.key==='ArrowLeft'&&dx===0){dx=-1;dy=0;} 
-      if (e.key==='ArrowRight'&&dx===0){dx=1;dy=0;}
-    });
+    document.getElementById('restartButton').addEventListener('click',()=>{init();draw();gameInterval=setInterval(()=>{update();draw();},150);});
+    document.addEventListener('keydown',e=>{if(e.key==='ArrowUp'&&dy===0){dx=0;dy=-1;}if(e.key==='ArrowDown'&&dy===0){dx=0;dy=1;}if(e.key==='ArrowLeft'&&dx===0){dx=-1;dy=0;}if(e.key==='ArrowRight'&&dx===0){dx=1;dy=0;}});
   </script>
 </body>
 </html>
